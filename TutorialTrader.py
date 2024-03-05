@@ -1,3 +1,8 @@
+
+'''
+This is just copied and pasted from Prosperity Wiki so I can submit something and get the tutorial csv
+'''
+
 from typing import Dict, List
 from datamodel import OrderDepth, TradingState, Order
 
@@ -10,10 +15,6 @@ import copy
 
 import pandas as pd
 import numpy as np
-
-'''
-This is just copied and pasted from Prosperity Wiki so I can submit something and get the tutorial csv
-'''
 
 class Trader:
     def run(self, state: TradingState):
