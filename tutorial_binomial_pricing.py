@@ -46,34 +46,37 @@ class csv_parser:
                 self.starfruit_asks.append(row['ask_price_1'])
                 self.starfruit_asks.append(row['ask_price_2'])
                 self.starfruit_asks.append(row['ask_price_3'])
-
-parser = csv_parser()
-print(len(parser.amethyst_bids))
-print(len(parser.amethyst_asks))
-
-# class volatility:
-#     def __init__(self, amethyst_bids, starfruit_bids, amethyst_asks, starfruit_asks):
-#         amethyst_prices = amethyst_bids + amethyst_asks
-#         starfruit_prices = starfruit_bids + starfruit_asks
         
-#         # calculate means
-#         self.amethyst_mean = 0
-
-#         for price in amethyst_bids:
-#             self.amethyst_mean += price
+        # clean by replacing nan values with previous values
+        for i in range(len(self.amethyst_bids) - 1):
+            if math.isnan(self.amethyst_bids[i + 1]):
+                self.amethyst_bids[i + 1] = self.amethyst_bids[i]
+            
+            if math.isnan(self.amethyst_asks[i + 1]):
+                self.amethyst_asks[i + 1] = self.amethyst_asks[i]
+                
+        for i in range(len(self.starfruit_bids) - 1):
+            if math.isnan(self.starfruit_bids[i + 1]):
+                self.starfruit_bids[i + 1] = self.starfruit_bids[i]
+            
+            if math.isnan(self.starfruit_asks[i + 1]):
+                self.starfruit_asks[i + 1] = self.starfruit_asks[i]
         
-#         self.amethyst_mean /= len(amethyst_prices)
+        # create midprices
+        self.amethyst_midprices = ((x + y) / 2 for x, y in zip(self.amethyst_bids, self.amethyst_asks))
+        self.starfruit_midprices = ((x + y) / 2 for x, y in zip(self.starfruit_bids, self.starfruit_asks))
 
-#         self.starfruit_mean = 0
-
-#         for price in starfruit_prices:
-#             self.starfruit_mean += price
+class volatility:
+    def __init__(self, amethyst_midprices, starfruit_midprices):
+        amethyst_mean = self.calculate_mean(amethyst_midprices)
+        starfruit_mean = self.calculate_mean(starfruit_midprices)
         
-#         self.starfruit_mean /= len(starfruit_prices)
+        self.amethyst_vol = self.calculate_variance(amethyst_midprices, amethyst_mean)
+        self.starfruit_vol = self.calculate_variance(starfruit_midprices, starfruit_mean)
+        
+    def calculate_mean(data):
+        return sum(data) / len(data)
 
-#         # calculate returns
-#         amethyst_returns = 0
-
-
-
-
+    def calculate_variance(data, mean):
+        squared_diff = [(x - mean) ** 2 for x in data]
+        return sum(squared_diff) / len(data)
