@@ -50,39 +50,36 @@ class Trader:
             if product == "AMETHYSTS":
                 print("Amethysts")
                 # Amethyst strategy
-                if len(order_depth.sell_orders) != 0:
-                    best_ask = min(order_depth.sell_orders.keys())  # Get the lowest ask price
-                    best_ask_amount = order_depth.sell_orders[best_ask]
+                if len(order_depth.buy_orders) != 0:
+                    best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
 
                     if int(best_ask) <= self.amethyst_buyprice:
                         print("BUY", str(-best_ask_amount) + "x", best_ask)
                         orders.append(Order(product, best_ask, -best_ask_amount))
 
                 if len(order_depth.sell_orders) != 0:
-                    best_bid = max(order_depth.buy_orders.keys())  # Get the highest bid price
-                    best_bid_amount = order_depth.buy_orders[best_bid]
+                    best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
 
                     if int(best_bid) >= self.amethyst_sellprice:
                         print("SELL", str(best_bid_amount) + "x", best_bid)
                         orders.append(Order(product, best_bid, -best_bid_amount))
 
             elif product == "STARFRUIT":
+                roc = self.calculate_roc(product, state)
+                print(" roc " + str(roc))
+                
                 # Starfruit strategy
-                if len(order_depth.sell_orders) != 0:
-                    best_bid = max(order_depth.buy_orders.keys())  # Get the highest bid price
-                    best_bid_amount = order_depth.buy_orders[best_bid]
-                    
-                    best_ask = min(order_depth.sell_orders.keys())  # Get the lowest ask price
-                    best_ask_amount = order_depth.sell_orders[best_ask]
-
-                    roc = self.calculate_roc(product, state)
-                    print(str(roc))
+                if len(order_depth.buy_orders) != 0:  
+                    best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
 
                     if roc >= self.roc_sell:
                         # adjust sell for the amount can sell
                         print("SELL", str(best_bid_amount) + "x", best_bid)
                         orders.append(Order(product, best_bid, -best_bid_amount))
                 
+                if len(order_depth.sell_orders) != 0:
+                    best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
+                    
                     if roc <= self.roc_buy:
                         print("BUY", str(-best_ask_amount) + "x", best_ask)
                         orders.append(Order(product, best_ask, -best_ask_amount))
