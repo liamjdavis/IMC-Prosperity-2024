@@ -48,7 +48,7 @@ class Trader:
                     orders.append(Order(product, best_ask, -best_ask_amount))
 
             if len(order_depth.sell_orders) != 0:
-                best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
+                best_bid, best_bid_amount = list(order_depth.buy    _orders.items())[0]
                 if rsi < self.lower_threshold:
                     print("SELL", str(best_bid_amount) + "x", best_bid)
                     orders.append(Order(product, best_bid, -best_bid_amount))
