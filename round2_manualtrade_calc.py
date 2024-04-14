@@ -1,3 +1,5 @@
+import math
+
 def bellman_ford(graph, source):
   """
   Implements the Bellman-Ford algorithm.
@@ -56,20 +58,22 @@ def arbitrage_opportunity(currencies, rates, source_currency="seashells"):
 
   Prints the arbitrage opportunity details or a message indicating no opportunity found.
   """
-  graph = rates
+  graph = [[-math.log(edge) for edge in row] for row in rates]
   source_index = currencies.index(source_currency)
-  distance, parent = bellman_ford(graph, source_index)
+  result = bellman_ford(graph, source_index)
 
-  if distance is None:
+  if result is None:
     print("Negative weight cycle detected. No valid arbitrage opportunity.")
-  elif distance[source_index] == float("inf"):
-    print("No arbitrage opportunity found for", source_currency)
   else:
-    path = reconstruct_path(parent, source_index)
-    print(f"Arbitrage opportunity starting with {source_currency}:")
-    for i in range(len(path) - 1):
-      print(f"1 {currencies[path[i]]} -> {distance[path[i+1]] * 1:.2f} {currencies[path[i+1]]}")
-    print(f"Total gain: {distance[source_index] - 1:.2f} {source_currency}")
+    distance, parent = result
+    print(f"Arbitrage opportunities starting with {source_currency}:")
+    for i in range(len(currencies)):
+      if i != source_index and distance[i] != float('inf'):
+        path = reconstruct_path(parent, i)
+        print(f"Path: {' -> '.join(currencies[node] for node in path)}")
+        print(f"Value: {math.exp(-distance[i]):.2f} {source_currency}")
+    if distance[source_index] != 0:
+      print(f"Total gain: {math.exp(-distance[source_index]) - 1:.2f} {source_currency}")
 
 # Define currencies and exchange rates
 currencies = ["pizza", "wasabi", "snowballs", "seashells"]
@@ -82,4 +86,3 @@ rates = [
 
 # Find arbitrage opportunity starting from seashells
 arbitrage_opportunity(currencies, rates)
-# no arbitrage opportunities found from seashells to seashells

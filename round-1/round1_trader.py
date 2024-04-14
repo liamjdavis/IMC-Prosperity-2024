@@ -16,7 +16,7 @@ class Trader:
         trades = state.market_trades.get(product, [])
         prices = [trade.price for trade in trades]
         self.starfruit_prices.extend(prices)
-        print(self.starfruit_prices)
+        print(self.starfruit_prices)    
 
         # Ensure there are at least 100 data points
         if len(self.starfruit_prices) < 100:
