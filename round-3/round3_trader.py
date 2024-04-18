@@ -22,18 +22,18 @@ class Trader:
         
         # rose stuff
         self.rose_prices = deque(maxlen=100)
-        self.rose_buy = 100
-        self.rose_sell = -100
+        self.rose_buy = 0.05
+        self.rose_sell = -0.10
         
         # strawberry stuff
         self.strawberry_prices = deque(maxlen=100)
-        self.strawberry_buy = 20
-        self.strawberry_sell = -10
+        self.strawberry_buy = 0.10
+        self.strawberry_sell = -0.10
         
         # chocolate stuff
         self.chocolate_prices = deque(maxlen=100)
-        self.chocolate_buy = 20
-        self.chocolate_sell = -20
+        self.chocolate_buy = 0.15
+        self.chocolate_sell = -0.20
     
     def calculate_roc(self, product: str, state: TradingState, prices_deque: deque) -> float:
         trades = state.market_trades.get(product, [])
@@ -128,21 +128,39 @@ class Trader:
                     if second_derivative >= self.orchid_sell:
                         orders.append(Order(product, best_bid, best_bid_amount))
             
-            elif product == 'ROSES':
-                roc = self.calculate_roc(product, state, self.rose_prices)
-
+            elif product == 'GIFT_BASKET':
+                strawberry_trades = state.market_trades.get('STRAWBERRIES', [])
+                strawberry_prices = [trade.price for trade in strawberry_trades]
+                strawberry_price = strawberry_prices[-1]
+                
+                chocolate_trades = state.market_trades.get('CHOCOLATE', [])
+                chocolate_prices = [trade.price for trade in chocolate_trades]
+                chocolate_price = chocolate_prices[-1]
+                
+                rose_trades = state.market_trades.get('ROSES', [])
+                rose_prices = [trade.price for trade in rose_trades]
+                rose_price = rose_prices[-1]
+                
+                basket_trades = state.market_trades.get('GIFT_BASKET', [])
+                basket_prices = [trade.price for trade in basket_trades]
+                basket_price = basket_prices[-1]
+                
+                spread = basket_price - ((6 * strawberry_price) + (4 * chocolate_price) + rose_price)
+                print(" spread " + str(spread))
+                
                 if len(order_depth.sell_orders) > 0:
                     best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
-                    if roc <= self.rose_sell:
+                    if spread <= 300:
                         orders.append(Order(product, best_ask, -best_ask_amount))
                 
                 if len(order_depth.buy_orders) > 0:
                     best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
-                    if roc >= self.rose_buy:
-                        orders.append(Order(product, best_bid, -best_bid_amount))
+                    if spread >= 500:
+                        orders.append(Order(product, best_bid, best_bid_amount))
             
             elif product == 'STRAWBERRIES':
                 roc = self.calculate_roc(product, state, self.strawberry_prices)
+                print(" Strawberry ROC " + str(roc))
 
                 if len(order_depth.sell_orders) > 0:
                     best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
@@ -154,14 +172,29 @@ class Trader:
                     if roc >= self.strawberry_buy:
                         orders.append(Order(product, best_bid, -best_bid_amount))
             
+            elif product == 'ROSES':
+                roc = self.calculate_roc(product, state, self.rose_prices)
+                print(" Rose ROC " + str(roc))
+
+                if len(order_depth.sell_orders) > 0:
+                    best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
+                    if roc <= self.rose_sell:
+                        orders.append(Order(product, best_ask, -best_ask_amount))
+                
+                if len(order_depth.buy_orders) > 0:
+                    best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
+                    if roc >= self.rose_buy:
+                        orders.append(Order(product, best_bid, -best_bid_amount))
+            
             elif product == 'CHOCOLATE':
                 roc = self.calculate_roc(product, state, self.chocolate_prices)
-
+                print(" Chocolate ROC " + str(roc))
+                
                 if len(order_depth.sell_orders) > 0:
                     best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
                     if roc <= self.chocolate_sell:
                         orders.append(Order(product, best_ask, -best_ask_amount))
-                
+                        
                 if len(order_depth.buy_orders) > 0:
                     best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
                     if roc >= self.chocolate_buy:
